@@ -1,18 +1,22 @@
+// jcarousel.responsive.js
 (function($) {
     $(function() {
         var jcarousel = $('.jcarousel');
+        var getSlideCount = function(selector){
+            var width = $(selector).innerWidth();
+            if(width >= 600) {
+                return 3;
+            } else if (width >= 350) {
+                return 2;
+            } else {
+                return 1;
+            }
+        };
 
         jcarousel
             .on('jcarousel:reload jcarousel:create', function () {
-                var carousel = $(this),
-                    width = carousel.innerWidth();
-
-                if (width >= 600) {
-                    width = width / 3;
-                } else if (width >= 350) {
-                    width = width / 2;
-                }
-
+                var carousel = $(this);
+                var width = carousel.innerWidth() / getSlideCount(carousel);
                 carousel.jcarousel('items').css('width', Math.ceil(width) + 'px');
             })
             .jcarousel({
@@ -21,12 +25,16 @@
 
         $('.jcarousel-control-prev')
             .jcarouselControl({
-                target: '-=1'
+                target: function(){
+                    return '-=' + getSlideCount(this);
+                }
             });
 
         $('.jcarousel-control-next')
             .jcarouselControl({
-                target: '+=1'
+                target: function(){
+                    return '+=' + getSlideCount(this);
+                }
             });
 
         $('.jcarousel-pagination')
@@ -40,7 +48,9 @@
                 e.preventDefault();
             })
             .jcarouselPagination({
-                perPage: 1,
+                perPage: function(){
+                    return getSlideCount(this);
+                },
                 item: function(page) {
                     return '<a href="#' + page + '">' + page + '</a>';
                 }
